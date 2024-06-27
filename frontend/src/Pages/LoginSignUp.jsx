@@ -12,19 +12,19 @@ function LoginSignUp() {
   const login = async () => {
     try {
       console.log("Login Function Executed", formData);
-
-      let responseData;
-      await fetch("http://localhost:4000/login", {
+  
+      const response = await fetch("http://localhost:4000/login", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      })
-        .then((res) => res.json())
-        .then((data) => (responseData = data));
-
+      });
+  
+      const responseData = await response.json();
+      // console.log(responseData); 
+  
       if (responseData.success) {
         localStorage.setItem("auth-token", responseData.token);
         window.location.replace("/");
@@ -35,6 +35,7 @@ function LoginSignUp() {
       console.error("Login Error:", error);
     }
   };
+  
 
   const signUp = async () => {
     try {

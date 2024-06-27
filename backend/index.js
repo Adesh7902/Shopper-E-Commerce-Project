@@ -20,13 +20,10 @@ app.get("/", (req, res) => {
   res.send("Express App is running");
 });
 
-
-// Image Storage Engine 
-// Static is Middleware 
+// Image Storage Engine
+// Static is Middleware
 app.use("/images", express.static("upload/images"));
 
-
-// add product
 
 app.listen(port, (error) => {
   if (!error) {

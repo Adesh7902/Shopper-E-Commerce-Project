@@ -126,9 +126,7 @@ const signupUser = async (req, res) => {
       },
     };
 
-    const token = jwt.sign(data, "secret-ecomm", {
-      expiresIn: "1h", // Token expires in 1 hour
-    });
+    const token = jwt.sign(data, "secret-ecomm");
 
     res.json({ success: true, token });
   } catch (error) {
@@ -137,6 +135,7 @@ const signupUser = async (req, res) => {
   }
 };
 
+// Api for login
 const loginUser = async (req, res) => {
   try {
     let user = await Users.findOne({ email: req.body.email });
@@ -169,6 +168,67 @@ const loginUser = async (req, res) => {
   }
 };
 
+// Api for getting new collection
+const newCollection = async (req, res) => {
+  let products = await Product.find({});
+  let newcollection = products.slice(1).slice(-8);
+  console.log("New Collection Fetch");
+  res.send(newcollection);
+};
+
+// Api for getting popular in women
+const popularInWomen = async (req, res) => {
+  let products = await Product.find({ category: "women" });
+  let popular_in_women = products.slice(0, 4);
+  console.log("Popular in Women Fetched");
+  res.send(popular_in_women);
+};
+
+// Creating middleware to fetch user data
+const fetchUser = async (req, res, next) => {
+  const token = req.header("auth-token");
+  if (!token) {
+    res.status(401).send({ errors: "Please Authenticate using valid token" });
+  } else {
+    try {
+      const data = jwt.verify(token, "secret-ecomm");
+      req.user = data.user;
+      next();
+    } catch (error) {
+      res.status(401).send({ errors: "Please Authenticate using valid token" });
+    }
+  }
+};
+
+// Api for adding item in cart
+const addToCart = async (req, res) => {
+  let userData = await Users.findOne({ _id: req.user.id });
+  userData.cartData[req.body.itemId] += 1;
+  await Users.findOneAndUpdate(
+    { _id: req.user.id },
+    { cartData: userData.cartData }
+  );
+  res.send("Added");
+};
+
+// Api for removing product from cart
+const removeFromCart = async (req, res) => {
+  let userData = await Users.findOne({ _id: req.user.id });
+  if (userData.cartData[req.body.itemId] > 0)
+    userData.cartData[req.body.itemId] -= 1;
+  await Users.findOneAndUpdate(
+    { _id: req.user.id },
+    { cartData: userData.cartData }
+  );
+  res.send("Removed");
+};
+
+const getCart = async (req, res) => {
+  console.log("GetCart");
+  let userData = await Users.findOne({ _id: req.user.id });
+  res.json(userData.cartData);
+};
+
 module.exports = {
   upload,
   uploadImg,
@@ -177,4 +237,10 @@ module.exports = {
   getAllProduct,
   signupUser,
   loginUser,
+  newCollection,
+  popularInWomen,
+  fetchUser,
+  addToCart,
+  removeFromCart,
+  getCart,
 };

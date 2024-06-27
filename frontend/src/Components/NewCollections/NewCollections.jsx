@@ -1,15 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./NewCollections.css";
-import new_collection from "../Assets/new_collections";
 import Item from "../Item/Item";
 
 const NewCollections = () => {
+  const [newCollection, setNewCollection] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/newcollection")
+      .then((res) => res.json())
+      .then((data) => setNewCollection(data));
+  }, []);
+
   return (
     <div className="new-collections">
       <h1>NEW COLLECTIONS</h1>
       <hr />
       <div className="collections">
-        {new_collection.map((item, i) => {
+        {newCollection.map((item, i) => {
           return (
             <Item
               key={i}
